@@ -1,8 +1,11 @@
 # Change Log
 
-## 2.9.8
+## 2.9.9
 
 - Added opt-in Cargo feature to skip Audio::start() in headless mode
+
+## 2.9.8
+
 - Updated Rust to version nightly-2026-07-14
 - Updated glow crate to version 0.18
 - Updated GitHub Actions dependencies and wheel verification workflow
