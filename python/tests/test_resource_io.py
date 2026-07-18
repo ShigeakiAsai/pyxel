@@ -443,3 +443,60 @@ class TestUserDataDir:
         result = pyxel.user_data_dir("TestVendor", "TestApp")
         assert isinstance(result, str)
         assert len(result) > 0
+
+    def test_user_data_dir_with_dir_prefix(self, tmp_path):
+        dir_prefix = str(tmp_path)
+        result = pyxel.user_data_dir("TestVendor", "TestApp", dir_prefix=dir_prefix)
+        assert result.startswith(dir_prefix)
+        assert Path(result).is_dir()
+
+    def test_user_data_dir_dir_prefix_skips_default_resolution(self, tmp_path):
+        # Two different explicit prefixes should never collide, even
+        # with identical vendor_name/app_name — confirms `dir_prefix`
+        # actually replaces the resolved base directory rather than
+        # just being appended to it somewhere.
+        dir_prefix_a = tmp_path / "a"
+        dir_prefix_b = tmp_path / "b"
+        result_a = pyxel.user_data_dir(
+            "SameVendor", "SameApp", dir_prefix=str(dir_prefix_a)
+        )
+        result_b = pyxel.user_data_dir(
+            "SameVendor", "SameApp", dir_prefix=str(dir_prefix_b)
+        )
+        assert result_a.startswith(str(dir_prefix_a))
+        assert result_b.startswith(str(dir_prefix_b))
+        assert result_a != result_b
+
+    def test_user_data_dir_rejects_relative_dir_prefix(self):
+        with raises_exact(Exception, "dir_prefix must be an absolute path"):
+            pyxel.user_data_dir("TestVendor", "TestApp", dir_prefix="relative/path")
+
+    def test_user_data_dir_with_dir_prefix_only(self, tmp_path):
+        # vendor_name/app_name both omitted alongside dir_prefix: the
+        # given directory is used directly, with no vendor/app
+        # subdirectories appended underneath it.
+        dir_prefix = str(tmp_path)
+        result = pyxel.user_data_dir(dir_prefix=dir_prefix)
+        assert result.rstrip("/") == dir_prefix.rstrip("/")
+        assert Path(result).is_dir()
+
+    def test_user_data_dir_requires_vendor_and_app_without_dir_prefix(self):
+        with raises_exact(
+            Exception,
+            "vendor_name and app_name are required when dir_prefix is not specified",
+        ):
+            pyxel.user_data_dir()
+
+    def test_user_data_dir_rejects_vendor_name_without_app_name(self, tmp_path):
+        with raises_exact(
+            Exception,
+            "vendor_name and app_name must both be specified or both omitted",
+        ):
+            pyxel.user_data_dir(vendor_name="TestVendor", dir_prefix=str(tmp_path))
+
+    def test_user_data_dir_rejects_app_name_without_vendor_name(self, tmp_path):
+        with raises_exact(
+            Exception,
+            "vendor_name and app_name must both be specified or both omitted",
+        ):
+            pyxel.user_data_dir(app_name="TestApp", dir_prefix=str(tmp_path))

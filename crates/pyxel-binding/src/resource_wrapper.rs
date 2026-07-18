@@ -105,9 +105,14 @@ fn reset_screencast() {
 // User data
 
 #[pyfunction]
-fn user_data_dir(vendor_name: &str, app_name: &str) -> PyResult<String> {
+#[pyo3(signature = (vendor_name=None, app_name=None, dir_prefix=None))]
+fn user_data_dir(
+    vendor_name: Option<&str>,
+    app_name: Option<&str>,
+    dir_prefix: Option<&str>,
+) -> PyResult<String> {
     pyxel()
-        .user_data_dir(vendor_name, app_name)
+        .user_data_dir(vendor_name, app_name, dir_prefix)
         .map_err(PyException::new_err)
 }
 

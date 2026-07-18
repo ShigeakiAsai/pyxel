@@ -146,14 +146,15 @@ Load the resource file (.pyxres). If an option is set to True, the corresponding
 
 **Note:** If a palette file (.pyxpal) with the same name exists, the palette display colors will also be updated.
 
-### `user_data_dir(vendor_name, app_name)` — function *(Advanced)*
+### `user_data_dir(vendor_name=None, app_name=None, dir_prefix=None)` — function *(Advanced)*
 
-Return the user data directory created based on vendor_name and app_name. If the directory does not exist, it will be created automatically.
+Return the user data directory created based on vendor_name and app_name. If the directory does not exist, it will be created automatically. vendor_name and app_name must both be specified or both omitted; they are required when dir_prefix is not specified. If dir_prefix is specified, it is used as the base directory (optionally with vendor_name/app_name appended below it); otherwise a default location is chosen automatically.
 
 **Parameters:**
 
-- `vendor_name` (*str*) — Vendor name
-- `app_name` (*str*) — Application name
+- `vendor_name` (*str*) — Vendor name. Must be specified together with app_name (both, or neither) — required unless dir_prefix is specified.
+- `app_name` (*str*) — Application name. Must be specified together with vendor_name (both, or neither) — required unless dir_prefix is specified.
+- `dir_prefix` (*str*) — Absolute path to use as the base directory. If omitted, a default location is chosen automatically.
 
 **Returns:** `str` — Path to the user data directory
 
@@ -161,6 +162,8 @@ Return the user data directory created based on vendor_name and app_name. If the
 
 ```python
 pyxel.user_data_dir("Takashi Kitao", "Pyxel Shooter")
+pyxel.user_data_dir("Takashi Kitao", "Pyxel Shooter", dir_prefix="/mnt/save")
+pyxel.user_data_dir(dir_prefix="/mnt/save")
 ```
 
 ### `save(filename, exclude_images=False, exclude_tilemaps=False, exclude_sounds=False, exclude_musics=False)` — function *(Advanced)*

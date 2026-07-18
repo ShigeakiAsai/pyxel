@@ -232,19 +232,53 @@ impl Pyxel {
     }
 
     // User data
+    //
+    // `dir_prefix`, when Some, replaces the resolved home directory as the base.
+    pub fn user_data_dir(
+        &self,
+        vendor_name: Option<&str>,
+        app_name: Option<&str>,
+        dir_prefix: Option<&str>,
+    ) -> Result<String, String> {
+        let vendor_app = match (vendor_name, app_name) {
+            (Some(v), Some(a)) => Some((v, a)),
+            (None, None) => None,
+            _ => {
+                return Err(
+                    "vendor_name and app_name must both be specified or both omitted".to_string(),
+                );
+            }
+        };
 
-    pub fn user_data_dir(&self, vendor_name: &str, app_name: &str) -> Result<String, String> {
-        let home_dir = UserDirs::new()
-            .map_or_else(PathBuf::new, |user_dirs| user_dirs.home_dir().to_path_buf());
-        let app_data_dir = home_dir
-            .join(BASE_DIR)
-            .join(Self::sanitize_dir_name(vendor_name))
-            .join(Self::sanitize_dir_name(app_name));
+        let base_dir = match dir_prefix {
+            Some(dir_prefix) => {
+                let path = PathBuf::from(dir_prefix);
+                if !path.is_absolute() {
+                    return Err("dir_prefix must be an absolute path".to_string());
+                }
+                path
+            }
+            None if vendor_app.is_none() => {
+                return Err(
+                    "vendor_name and app_name are required when dir_prefix is not specified"
+                        .to_string(),
+                );
+            }
+            None => UserDirs::new()
+                .map_or_else(PathBuf::new, |user_dirs| user_dirs.home_dir().to_path_buf())
+                .join(BASE_DIR),
+        };
+        let app_data_dir = match vendor_app {
+            Some((v, a)) => base_dir
+                .join(Self::sanitize_dir_name(v))
+                .join(Self::sanitize_dir_name(a)),
+            None => base_dir,
+        };
 
         if !app_data_dir.exists() {
             let dir = app_data_dir.to_string_lossy();
             fs::create_dir_all(&app_data_dir)
-                .map_err(|_| format!("Failed to create directory '{dir}'"))?;
+                .map_err(|e| format!("Failed to create directory '{dir}': {e}"))?;
             println!("Created '{dir}'");
         }
 

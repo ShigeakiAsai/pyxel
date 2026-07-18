@@ -1513,18 +1513,25 @@ def reset_screencast() -> None:
     """Reset the screen recording buffer."""
     ...
 
-def user_data_dir(vendor_name: str, app_name: str) -> str:
-    """Return the user data directory created based on vendor_name and app_name. If the directory does not exist, it will be created automatically.
+def user_data_dir(
+    vendor_name: str | None = None,
+    app_name: str | None = None,
+    dir_prefix: str | None = None,
+) -> str:
+    """Return the user data directory created based on vendor_name and app_name. If the directory does not exist, it will be created automatically. vendor_name and app_name must both be specified or both omitted; they are required when dir_prefix is not specified. If dir_prefix is specified, it is used as the base directory (optionally with vendor_name/app_name appended below it); otherwise a default location is chosen automatically.
 
     Args:
-        vendor_name: Vendor name
-        app_name: Application name
+        vendor_name: Vendor name. Must be specified together with app_name (both, or neither) — required unless dir_prefix is specified.
+        app_name: Application name. Must be specified together with vendor_name (both, or neither) — required unless dir_prefix is specified.
+        dir_prefix: Absolute path to use as the base directory. If omitted, a default location is chosen automatically.
 
     Returns:
         Path to the user data directory
 
     Example::
         pyxel.user_data_dir("Takashi Kitao", "Pyxel Shooter")
+        pyxel.user_data_dir("Takashi Kitao", "Pyxel Shooter", dir_prefix="/mnt/save")
+        pyxel.user_data_dir(dir_prefix="/mnt/save")
     """
     ...
 
