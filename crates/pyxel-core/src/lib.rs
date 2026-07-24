@@ -65,6 +65,7 @@ pub use crate::font::{Font, RcFont};
 pub use crate::image::{Color, Image, RcImage, Rgb24};
 pub use crate::key::*;
 pub use crate::music::{Music, RcMusic};
+pub use crate::pcm_decoder::{load_pcm, PcmData};
 #[cfg(target_os = "emscripten")]
 pub use crate::pyxel::reset_statics;
 pub use crate::pyxel::{
